@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/MarkerCluster.css">
+        <link rel="stylesheet" href="css/MarkerCluster.Default.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        #map {
+            width: 669px;
+            height: 540px;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet.markercluster.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/BatasKecamatan_3.js"></script>
+        <script src="data/JaringanJalan_4.js"></script>
+        <script src="data/LokasiWisata_5.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:9
+        }).fitBounds([[-8.228894743243496,110.38615650644515],[-7.785495650743497,110.9358724817193]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            map.setMaxBounds(map.getBounds());
+        }
+        map.createPane('pane_GoogleSatellite_0');
+        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
+        var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 9,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleSatellite_0;
+        map.createPane('pane_OSMStandard_1');
+        map.getPane('pane_OSMStandard_1').style.zIndex = 401;
+        var layer_OSMStandard_1 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_1',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 9,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_1;
+        map.createPane('pane_GoogleTerrain_2');
+        map.getPane('pane_GoogleTerrain_2').style.zIndex = 402;
+        var layer_GoogleTerrain_2 = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleTerrain_2',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 9,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleTerrain_2;
+        map.addLayer(layer_GoogleTerrain_2);
+        function pop_BatasKecamatan_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Kecamatan</th>\
+                        <td>' + (feature.properties['Kecamatan'] !== null ? autolinker.link(feature.properties['Kecamatan'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Kabupaten</th>\
+                        <td>' + (feature.properties['Kabupaten'] !== null ? autolinker.link(feature.properties['Kabupaten'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Provinsi</th>\
+                        <td>' + (feature.properties['Provinsi'] !== null ? autolinker.link(feature.properties['Provinsi'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_BatasKecamatan_3_0() {
+            return {
+                pane: 'pane_BatasKecamatan_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(152,125,183,0.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_BatasKecamatan_3');
+        map.getPane('pane_BatasKecamatan_3').style.zIndex = 403;
+        map.getPane('pane_BatasKecamatan_3').style['mix-blend-mode'] = 'normal';
+        var layer_BatasKecamatan_3 = new L.geoJson(json_BatasKecamatan_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_BatasKecamatan_3',
+            layerName: 'layer_BatasKecamatan_3',
+            pane: 'pane_BatasKecamatan_3',
+            onEachFeature: pop_BatasKecamatan_3,
+            style: style_BatasKecamatan_3_0,
+        });
+        bounds_group.addLayer(layer_BatasKecamatan_3);
+        map.addLayer(layer_BatasKecamatan_3);
+        function pop_JaringanJalan_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Status</th>\
+                        <td>' + (feature.properties['Status'] !== null ? autolinker.link(feature.properties['Status'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Fungsi</th>\
+                        <td>' + (feature.properties['Fungsi'] !== null ? autolinker.link(feature.properties['Fungsi'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Panjang (km)</th>\
+                        <td>' + (feature.properties['Panjang_Km'] !== null ? autolinker.link(feature.properties['Panjang_Km'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_JaringanJalan_4_0() {
+            return {
+                pane: 'pane_JaringanJalan_4',
+                opacity: 1,
+                color: 'rgba(231,113,72,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_JaringanJalan_4');
+        map.getPane('pane_JaringanJalan_4').style.zIndex = 404;
+        map.getPane('pane_JaringanJalan_4').style['mix-blend-mode'] = 'normal';
+        var layer_JaringanJalan_4 = new L.geoJson(json_JaringanJalan_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_JaringanJalan_4',
+            layerName: 'layer_JaringanJalan_4',
+            pane: 'pane_JaringanJalan_4',
+            onEachFeature: pop_JaringanJalan_4,
+            style: style_JaringanJalan_4_0,
+        });
+        bounds_group.addLayer(layer_JaringanJalan_4);
+        map.addLayer(layer_JaringanJalan_4);
+        function pop_LokasiWisata_5(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Wisata</th>\
+                        <td>' + (feature.properties['Wisata'] !== null ? autolinker.link(feature.properties['Wisata'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Kabupaten</th>\
+                        <td>' + (feature.properties['Kab_Kota'] !== null ? autolinker.link(feature.properties['Kab_Kota'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_LokasiWisata_5_0() {
+            return {
+                pane: 'pane_LokasiWisata_5',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/blue-marker.svg',
+            iconSize: [15.2, 15.2]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_LokasiWisata_5');
+        map.getPane('pane_LokasiWisata_5').style.zIndex = 405;
+        map.getPane('pane_LokasiWisata_5').style['mix-blend-mode'] = 'normal';
+        var layer_LokasiWisata_5 = new L.geoJson(json_LokasiWisata_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LokasiWisata_5',
+            layerName: 'layer_LokasiWisata_5',
+            pane: 'pane_LokasiWisata_5',
+            onEachFeature: pop_LokasiWisata_5,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_LokasiWisata_5_0(feature));
+            },
+        });
+        var cluster_LokasiWisata_5 = new L.MarkerClusterGroup({showCoverageOnHover: false,
+            spiderfyDistanceMultiplier: 2});
+        cluster_LokasiWisata_5.addLayer(layer_LokasiWisata_5);
+
+        bounds_group.addLayer(layer_LokasiWisata_5);
+        cluster_LokasiWisata_5.addTo(map);
+            var abstract = new L.Control({'position':'bottomleft'});
+            abstract.onAdd = function (map) {
+                this._div = L.DomUtil.create('div',
+                'leaflet-control leaflet-bar abstract');
+                this._div.id = 'abstract'
+
+                    abstract.show();
+                    return this._div;
+                };
+                abstract.show = function () {
+                    this._div.classList.remove("abstract");
+                    this._div.classList.add("abstractUncollapsed");
+                    this._div.innerHTML = 'Peta ini menyajikan tempat wisata di Kabupaten Gunung Kidul, DI Yogyakarta ';
+            };
+            abstract.addTo(map);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {"Google Terrain": layer_GoogleTerrain_2,"OSM Standard": layer_OSMStandard_1,"Google Satellite": layer_GoogleSatellite_0,};
+        L.control.layers(baseMaps,{'<img src="legend/LokasiWisata_5.png" /> Lokasi Wisata': cluster_LokasiWisata_5,'<img src="legend/JaringanJalan_4.png" /> Jaringan Jalan': layer_JaringanJalan_4,'<img src="legend/BatasKecamatan_3.png" /> Batas Kecamatan': layer_BatasKecamatan_3,}).addTo(map);
+        setBounds();
+        var i = 0;
+        layer_BatasKecamatan_3.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Kecamatan'] !== null?String('<div style="color: #000000; font-size: 12pt; font-family: \'MS Shell Dlg 2\', sans-serif;">' + layer.feature.properties['Kecamatan']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_BatasKecamatan_3'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_LokasiWisata_5.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Wisata'] !== null?String('<div style="color: #000000; font-size: 10pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['Wisata']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_LokasiWisata_5'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        map.addControl(new L.Control.Search({
+            layer: cluster_LokasiWisata_5,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'Wisata'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Wisata": "str","Provinsi": "str","Kecamatan": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + key).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + key).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + key).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Wisata = document.createElement('div');
+            div_Wisata.id = "div_Wisata";
+            div_Wisata.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Wisata);
+            sel_Wisata = document.createElement('select');
+            sel_Wisata.multiple = true;
+            sel_Wisata.size = 10;
+            sel_Wisata.id = "sel_Wisata";
+            var Wisata_options_str = "<option value='' unselected></option>";
+            sel_Wisata.onchange = function(){filterFunc()};
+            Wisata_options_str  += '<option value="Agrowisata Nglanggeran/Embung Nglanggeran">Agrowisata Nglanggeran/Embung Nglanggeran</option>';
+            Wisata_options_str  += '<option value="Air Terjun Banyunibo">Air Terjun Banyunibo</option>';
+            Wisata_options_str  += '<option value="Air Terjun Curug Sampang">Air Terjun Curug Sampang</option>';
+            Wisata_options_str  += '<option value="Air Terjun Kedung Kandang">Air Terjun Kedung Kandang</option>';
+            Wisata_options_str  += '<option value="Air Terjun Luweng Sampang">Air Terjun Luweng Sampang</option>';
+            Wisata_options_str  += '<option value="Air Terjun Sri Gethuk">Air Terjun Sri Gethuk</option>';
+            Wisata_options_str  += '<option value="BKM Waterboom">BKM Waterboom</option>';
+            Wisata_options_str  += '<option value="Baron Techno Park BPPT">Baron Techno Park BPPT</option>';
+            Wisata_options_str  += '<option value="Bukit Bintang">Bukit Bintang</option>';
+            Wisata_options_str  += '<option value="Cagar Budaya Situs Gondang">Cagar Budaya Situs Gondang</option>';
+            Wisata_options_str  += '<option value="Candi Plembutan">Candi Plembutan</option>';
+            Wisata_options_str  += '<option value="Candi Rejo">Candi Rejo</option>';
+            Wisata_options_str  += '<option value="Candi Riasan">Candi Riasan</option>';
+            Wisata_options_str  += '<option value="Desa Bejiharjo">Desa Bejiharjo</option>';
+            Wisata_options_str  += '<option value="Desa Giring">Desa Giring</option>';
+            Wisata_options_str  += '<option value="Desa Girisekar">Desa Girisekar</option>';
+            Wisata_options_str  += '<option value="Desa Jurukudel">Desa Jurukudel</option>';
+            Wisata_options_str  += '<option value="Desa Kantongan">Desa Kantongan</option>';
+            Wisata_options_str  += '<option value="Desa Kemadang">Desa Kemadang</option>';
+            Wisata_options_str  += '<option value="Desa Kepek">Desa Kepek</option>';
+            Wisata_options_str  += '<option value="Desa Putat">Desa Putat</option>';
+            Wisata_options_str  += '<option value="Desa Semanu">Desa Semanu</option>';
+            Wisata_options_str  += '<option value="Desa Semin">Desa Semin</option>';
+            Wisata_options_str  += '<option value="Desa Tambak Kromo">Desa Tambak Kromo</option>';
+            Wisata_options_str  += '<option value="Desa Wiladeng">Desa Wiladeng</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Bejiharjo">Desa Wisata Bejiharjo</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Bleberan">Desa Wisata Bleberan</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Bobung">Desa Wisata Bobung</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Garotan">Desa Wisata Garotan</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Jeloh">Desa Wisata Jeloh</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Jelok">Desa Wisata Jelok</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Kalisuci">Desa Wisata Kalisuci</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Klayar">Desa Wisata Klayar</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Mojo">Desa Wisata Mojo</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Nglanggeran">Desa Wisata Nglanggeran</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Pengkoh">Desa Wisata Pengkoh</option>';
+            Wisata_options_str  += '<option value="Desa Wisata Umbulrejo">Desa Wisata Umbulrejo</option>';
+            Wisata_options_str  += '<option value="Desa Wonosadi">Desa Wonosadi</option>';
+            Wisata_options_str  += '<option value="Gatot Thiwul Yu Tum">Gatot Thiwul Yu Tum</option>';
+            Wisata_options_str  += '<option value="Goa Braholo">Goa Braholo</option>';
+            Wisata_options_str  += '<option value="Goa Cerme">Goa Cerme</option>';
+            Wisata_options_str  += '<option value="Goa Cokro">Goa Cokro</option>';
+            Wisata_options_str  += '<option value="Goa Gadung">Goa Gadung</option>';
+            Wisata_options_str  += '<option value="Goa Jelamprong">Goa Jelamprong</option>';
+            Wisata_options_str  += '<option value="Goa Jomblang dan Grubug">Goa Jomblang dan Grubug</option>';
+            Wisata_options_str  += '<option value="Goa Kalisuci">Goa Kalisuci</option>';
+            Wisata_options_str  += '<option value="Goa Maria Tritis">Goa Maria Tritis</option>';
+            Wisata_options_str  += '<option value="Goa Ngingrong">Goa Ngingrong</option>';
+            Wisata_options_str  += '<option value="Goa Pindul">Goa Pindul</option>';
+            Wisata_options_str  += '<option value="Goa Rancang Kencono">Goa Rancang Kencono</option>';
+            Wisata_options_str  += '<option value="Goa Serapan">Goa Serapan</option>';
+            Wisata_options_str  += '<option value="Goa Tanding">Goa Tanding</option>';
+            Wisata_options_str  += '<option value="Green Village Gedangsari">Green Village Gedangsari</option>';
+            Wisata_options_str  += '<option value="Gunung Api Purba Nglanggeran">Gunung Api Purba Nglanggeran</option>';
+            Wisata_options_str  += '<option value="Gunung Gambar">Gunung Gambar</option>';
+            Wisata_options_str  += '<option value="Gunung Gentong">Gunung Gentong</option>';
+            Wisata_options_str  += '<option value="Gunung Kendil">Gunung Kendil</option>';
+            Wisata_options_str  += '<option value="Gunung Patuk Bukit Bintang">Gunung Patuk Bukit Bintang</option>';
+            Wisata_options_str  += '<option value="Hutan Kenongo">Hutan Kenongo</option>';
+            Wisata_options_str  += '<option value="Hutan Suaka Marga Satwa">Hutan Suaka Marga Satwa</option>';
+            Wisata_options_str  += '<option value="Hutan Tugu">Hutan Tugu</option>';
+            Wisata_options_str  += '<option value="Hutan Wanagama">Hutan Wanagama</option>';
+            Wisata_options_str  += '<option value="Kedai Sarwo Echo">Kedai Sarwo Echo</option>';
+            Wisata_options_str  += '<option value="Kemandang">Kemandang</option>';
+            Wisata_options_str  += '<option value="Mulo">Mulo</option>';
+            Wisata_options_str  += '<option value="Museum Kayu Ngunut">Museum Kayu Ngunut</option>';
+            Wisata_options_str  += '<option value="Museum Kayu Wanagama">Museum Kayu Wanagama</option>';
+            Wisata_options_str  += '<option value="Museum Radio">Museum Radio</option>';
+            Wisata_options_str  += '<option value="Ngestirejo">Ngestirejo</option>';
+            Wisata_options_str  += '<option value="Pacarejo">Pacarejo</option>';
+            Wisata_options_str  += '<option value="Pantai Baron">Pantai Baron</option>';
+            Wisata_options_str  += '<option value="Pantai Berkah">Pantai Berkah</option>';
+            Wisata_options_str  += '<option value="Pantai Butuh">Pantai Butuh</option>';
+            Wisata_options_str  += '<option value="Pantai Drini">Pantai Drini</option>';
+            Wisata_options_str  += '<option value="Pantai Gesing">Pantai Gesing</option>';
+            Wisata_options_str  += '<option value="Pantai Grigak">Pantai Grigak</option>';
+            Wisata_options_str  += '<option value="Pantai Indrayanti">Pantai Indrayanti</option>';
+            Wisata_options_str  += '<option value="Pantai Jogan">Pantai Jogan</option>';
+            Wisata_options_str  += '<option value="Pantai Jungwok">Pantai Jungwok</option>';
+            Wisata_options_str  += '<option value="Pantai Karangtelu">Pantai Karangtelu</option>';
+            Wisata_options_str  += '<option value="Pantai Kesirat">Pantai Kesirat</option>';
+            Wisata_options_str  += '<option value="Pantai Klampok">Pantai Klampok</option>';
+            Wisata_options_str  += '<option value="Pantai Krakal">Pantai Krakal</option>';
+            Wisata_options_str  += '<option value="Pantai Kukup">Pantai Kukup</option>';
+            Wisata_options_str  += '<option value="Pantai Ngandong">Pantai Ngandong</option>';
+            Wisata_options_str  += '<option value="Pantai Ngedan">Pantai Ngedan</option>';
+            Wisata_options_str  += '<option value="Pantai Ngetun">Pantai Ngetun</option>';
+            Wisata_options_str  += '<option value="Pantai Nglambor">Pantai Nglambor</option>';
+            Wisata_options_str  += '<option value="Pantai Ngobaran">Pantai Ngobaran</option>';
+            Wisata_options_str  += '<option value="Pantai Ngondo">Pantai Ngondo</option>';
+            Wisata_options_str  += '<option value="Pantai Ngrenehan">Pantai Ngrenehan</option>';
+            Wisata_options_str  += '<option value="Pantai Nguluran">Pantai Nguluran</option>';
+            Wisata_options_str  += '<option value="Pantai Ngunggah">Pantai Ngunggah</option>';
+            Wisata_options_str  += '<option value="Pantai Nguyuhan">Pantai Nguyuhan</option>';
+            Wisata_options_str  += '<option value="Pantai Parangendog">Pantai Parangendog</option>';
+            Wisata_options_str  += '<option value="Pantai Pok Tunggal">Pantai Pok Tunggal</option>';
+            Wisata_options_str  += '<option value="Pantai Sadeng">Pantai Sadeng</option>';
+            Wisata_options_str  += '<option value="Pantai Sadranan">Pantai Sadranan</option>';
+            Wisata_options_str  += '<option value="Pantai Sedahan">Pantai Sedahan</option>';
+            Wisata_options_str  += '<option value="Pantai Sepanjang">Pantai Sepanjang</option>';
+            Wisata_options_str  += '<option value="Pantai Seruni">Pantai Seruni</option>';
+            Wisata_options_str  += '<option value="Pantai Siung">Pantai Siung</option>';
+            Wisata_options_str  += '<option value="Pantai Slili">Pantai Slili</option>';
+            Wisata_options_str  += '<option value="Pantai Sundak">Pantai Sundak</option>';
+            Wisata_options_str  += '<option value="Pantai Tedunan">Pantai Tedunan</option>';
+            Wisata_options_str  += '<option value="Pantai Timang">Pantai Timang</option>';
+            Wisata_options_str  += '<option value="Pantai Torohudan">Pantai Torohudan</option>';
+            Wisata_options_str  += '<option value="Pantai Watu Kodok">Pantai Watu Kodok</option>';
+            Wisata_options_str  += '<option value="Pantai Watu Lumbung">Pantai Watu Lumbung</option>';
+            Wisata_options_str  += '<option value="Pantai Watugupit">Pantai Watugupit</option>';
+            Wisata_options_str  += '<option value="Pantai Wediombo">Pantai Wediombo</option>';
+            Wisata_options_str  += '<option value="Pantai Wohkudu">Pantai Wohkudu</option>';
+            Wisata_options_str  += '<option value="Pesanggarahan Gembirowati">Pesanggarahan Gembirowati</option>';
+            Wisata_options_str  += '<option value="Sate Kambing Pak Turut">Sate Kambing Pak Turut</option>';
+            Wisata_options_str  += '<option value="Stone Garden Geopark">Stone Garden Geopark</option>';
+            Wisata_options_str  += '<option value="Tahura Bunder">Tahura Bunder</option>';
+            Wisata_options_str  += '<option value="Taman Kehati">Taman Kehati</option>';
+            Wisata_options_str  += '<option value="Taman Kuliner Wonosari">Taman Kuliner Wonosari</option>';
+            Wisata_options_str  += '<option value="Telaga Biru">Telaga Biru</option>';
+            Wisata_options_str  += '<option value="Telaga Embung Sriten">Telaga Embung Sriten</option>';
+            Wisata_options_str  += '<option value="Telaga Jonge dan Telaga Gendhok">Telaga Jonge dan Telaga Gendhok</option>';
+            Wisata_options_str  += '<option value="Telaga Mriwis Putih">Telaga Mriwis Putih</option>';
+            Wisata_options_str  += '<option value="Telaga Nangsri">Telaga Nangsri</option>';
+            Wisata_options_str  += '<option value="Umbul Beton">Umbul Beton</option>';
+            Wisata_options_str  += '<option value="Waterbyur">Waterbyur</option>';
+            Wisata_options_str  += '<option value="Wisata Alam Jurug Gedhe">Wisata Alam Jurug Gedhe</option>';
+            Wisata_options_str  += '<option value="Wisata Alam Watu Payung">Wisata Alam Watu Payung</option>';
+            Wisata_options_str  += '<option value="Wisata Kuliner Jirak">Wisata Kuliner Jirak</option>';
+            Wisata_options_str  += '<option value="Wisata Kuliner Simo">Wisata Kuliner Simo</option>';
+            sel_Wisata.innerHTML = Wisata_options_str;
+            div_Wisata.appendChild(sel_Wisata);
+            var lab_Wisata = document.createElement('div');
+            lab_Wisata.innerHTML = 'Wisata';
+            lab_Wisata.className = 'filterlabel';
+            div_Wisata.appendChild(lab_Wisata);
+            var reset_Wisata = document.createElement('div');
+            reset_Wisata.innerHTML = 'clear filter';
+            reset_Wisata.className = 'filterlabel';
+            reset_Wisata.onclick = function() {
+                var options = document.getElementById("sel_Wisata").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Wisata.appendChild(reset_Wisata);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Provinsi = document.createElement('div');
+            div_Provinsi.id = "div_Provinsi";
+            div_Provinsi.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Provinsi);
+            sel_Provinsi = document.createElement('select');
+            sel_Provinsi.multiple = true;
+            sel_Provinsi.size = 1;
+            sel_Provinsi.id = "sel_Provinsi";
+            var Provinsi_options_str = "<option value='' unselected></option>";
+            sel_Provinsi.onchange = function(){filterFunc()};
+            Provinsi_options_str  += '<option value="DI Yogyakarta">DI Yogyakarta</option>';
+            sel_Provinsi.innerHTML = Provinsi_options_str;
+            div_Provinsi.appendChild(sel_Provinsi);
+            var lab_Provinsi = document.createElement('div');
+            lab_Provinsi.innerHTML = 'Provinsi';
+            lab_Provinsi.className = 'filterlabel';
+            div_Provinsi.appendChild(lab_Provinsi);
+            var reset_Provinsi = document.createElement('div');
+            reset_Provinsi.innerHTML = 'clear filter';
+            reset_Provinsi.className = 'filterlabel';
+            reset_Provinsi.onclick = function() {
+                var options = document.getElementById("sel_Provinsi").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Provinsi.appendChild(reset_Provinsi);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Kecamatan = document.createElement('div');
+            div_Kecamatan.id = "div_Kecamatan";
+            div_Kecamatan.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Kecamatan);
+            sel_Kecamatan = document.createElement('select');
+            sel_Kecamatan.multiple = true;
+            sel_Kecamatan.size = 10;
+            sel_Kecamatan.id = "sel_Kecamatan";
+            var Kecamatan_options_str = "<option value='' unselected></option>";
+            sel_Kecamatan.onchange = function(){filterFunc()};
+            Kecamatan_options_str  += '<option value="Gedangsari">Gedangsari</option>';
+            Kecamatan_options_str  += '<option value="Girisubo">Girisubo</option>';
+            Kecamatan_options_str  += '<option value="Karangmojo">Karangmojo</option>';
+            Kecamatan_options_str  += '<option value="Ngawen">Ngawen</option>';
+            Kecamatan_options_str  += '<option value="Nglipar">Nglipar</option>';
+            Kecamatan_options_str  += '<option value="Paliyan">Paliyan</option>';
+            Kecamatan_options_str  += '<option value="Panggang">Panggang</option>';
+            Kecamatan_options_str  += '<option value="Patuk">Patuk</option>';
+            Kecamatan_options_str  += '<option value="Playen">Playen</option>';
+            Kecamatan_options_str  += '<option value="Ponjong">Ponjong</option>';
+            Kecamatan_options_str  += '<option value="Purwosari">Purwosari</option>';
+            Kecamatan_options_str  += '<option value="Rongkop">Rongkop</option>';
+            Kecamatan_options_str  += '<option value="Saptosari">Saptosari</option>';
+            Kecamatan_options_str  += '<option value="Semanu">Semanu</option>';
+            Kecamatan_options_str  += '<option value="Semin">Semin</option>';
+            Kecamatan_options_str  += '<option value="Tanjungsari">Tanjungsari</option>';
+            Kecamatan_options_str  += '<option value="Tepus">Tepus</option>';
+            Kecamatan_options_str  += '<option value="Wonosari">Wonosari</option>';
+            sel_Kecamatan.innerHTML = Kecamatan_options_str;
+            div_Kecamatan.appendChild(sel_Kecamatan);
+            var lab_Kecamatan = document.createElement('div');
+            lab_Kecamatan.innerHTML = 'Kecamatan';
+            lab_Kecamatan.className = 'filterlabel';
+            div_Kecamatan.appendChild(lab_Kecamatan);
+            var reset_Kecamatan = document.createElement('div');
+            reset_Kecamatan.innerHTML = 'clear filter';
+            reset_Kecamatan.className = 'filterlabel';
+            reset_Kecamatan.onclick = function() {
+                var options = document.getElementById("sel_Kecamatan").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Kecamatan.appendChild(reset_Kecamatan);
+        resetLabels([layer_BatasKecamatan_3,layer_LokasiWisata_5]);
+        map.on("zoomend", function(){
+            resetLabels([layer_BatasKecamatan_3,layer_LokasiWisata_5]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_BatasKecamatan_3,layer_LokasiWisata_5]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_BatasKecamatan_3,layer_LokasiWisata_5]);
+        });
+        </script>
+    </body>
+</html>
